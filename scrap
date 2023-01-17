@@ -1,0 +1,1045 @@
+/*using hooks*/
+/*https://codesandbox.io/s/epic-solomon-00p5fh?file=/src/SoccerPlayer.js */
+
+//folder App.js
+import "./styles.css";
+import Child from "./Child";
+
+export default function App() {
+  return (
+    <div className="App">
+      {/* <h1>Hello CodeSandbox</h1>
+      <h2>Start editing to see some magic happen!</h2> */}
+      <Child name="Kutchu" age="11" gender="Male" />
+    </div>
+  );
+}
+
+//folder child.js
+import "./styles.css";
+import Child2 from "./Child2";
+import SoccerPlayer from "./SoccerPlayer";
+import { useState } from "react";
+
+export default function Child({ name, age, gender }) {
+  // const players = ["Messi", "Ronaldo", "Mbappe"];
+  const [count, setCount] = useState(10);
+  function handleChange() {
+    setCount(count + 1);
+  }
+
+  console.log(name);
+  return (
+    <>
+      <Child2 count={count} />
+      {/* <Child2 />
+      <h1>Hello {name}</h1>
+      {+age > 30 ? <h1>Age {age}</h1> : null}
+      <h1>Gender {gender}</h1> */}
+      <div>{count}</div>
+      <button onClick={handleChange}> Increment Count </button>
+      {/* {players.map((playerName, index) => (
+        <SoccerPlayer key={index} name={playerName} idx={index} />
+      ))} */}
+    </>
+  );
+}
+
+
+//folder child2.js
+
+import "./styles.css";
+
+export default function Child({ count }) {
+  return (
+    <div
+      className="Child2"
+      style={{
+        fontSize: 24,
+        margin: "0 auto",
+        textAlign: "center",
+        color: "Red"
+      }}
+    >
+      <h1>Hello {count}</h1>
+    </div>
+  );
+}
+
+//folder soccerPlayer.js
+import "./styles.css";
+
+export default function SoccerPlayer({ name, idx }) {
+  return (
+    <div
+      className="Player"
+      style={{
+        fontSize: 12,
+        margin: "0 auto",
+        textAlign: "center",
+        color: "blue"
+      }}
+    >
+      <h1>{name}</h1>
+      <h1>{idx}</h1>
+    </div>
+  );
+}
+
+//folder index.js
+import { createRoot } from "react-dom/client";
+
+import App from "./App";
+
+const rootElement = document.getElementById("root");
+const root = createRoot(rootElement);
+
+root.render(<App />);
+
+
+
+/******************************************************************************** */
+
+/* .  useRef  */
+/*https://codesandbox.io/s/morning-wave-tuwgbm?file=/src/index.js:0-261 */
+
+//folder app.js
+import "./styles.css";
+import React, { useRef, useEffect, useState } from "react";
+
+export default function App() {
+  const textInput = useRef();
+  const [item, setItem] = useState(0);
+  function focusTextInput() {
+    textInput.current.focus();
+  }
+
+  const counter = useRef(0);
+
+  useEffect(() => {
+    // Every time the component has been re-rendered,
+    // the counter is incremented
+    console.log(counter.current);
+    console.log(item);
+  });
+
+  return (
+    <>
+      <input type="text" ref={textInput} />
+      <button onClick={focusTextInput}>Focus the text input</button>
+      <h1>{`The component has been re-rendered ${counter.current} times`}</h1>
+      <button
+        onClick={function () {
+          counter.current = counter.current + 1;
+        }}
+      >
+        click ref
+      </button>
+
+      <button
+        onClick={function () {
+          setItem(item + 1);
+        }}
+      >
+        click state
+      </button>
+    </>
+  );
+}
+
+//folder index.js
+
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+
+import App from "./App";
+
+const rootElement = document.getElementById("root");
+const root = createRoot(rootElement);
+
+root.render(
+  <StrictMode>
+    <App />
+  </StrictMode>
+);
+
+
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\working\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+
+/* globals bz */
+function Logger(level) {
+	this.level = level || Logger.levels.ERROR;
+   }
+   
+   Logger.levels = {
+	ERROR: 0,
+	WARN: 1,
+	TEST: 2,
+	INFO: 3
+   };
+   
+   Logger.prototype = {
+	info: function () {
+	 if (this.level >= Logger.levels.INFO) {
+	  console.log.apply(console, arguments);
+	 }
+	},
+	warn: function () {
+	 if (this.level >= Logger.levels.WARN) {
+	  console.log.apply(console, arguments);
+	 }
+	},
+	test: function () {
+	 if (this.level >= Logger.levels.TEST) {
+	  console.log.apply(console, arguments);
+	 }
+	},
+	error: function () {
+	 if (this.level >= Logger.levels.ERROR) {
+	  console.log.apply(console, arguments);
+	 }
+	}
+   };
+   
+   var ITEMS_PER_VIEW = 4;
+   var FEED_JSON_ELEMENT = "RawJSON";
+   var LEFT_BUTTON_ELEMENT = "leftButton";
+   var RIGHT_BUTTON_ELEMENT = "rightButton";
+   var LOCATION_ELEMENT = "locationDrop";
+   var logger = new Logger(Logger.levels.ERRORS); // TODO Revert to ERROR for production & INFO for checking the output
+   
+   var leftBtn = bz.Creative.getElementByName("leftButton").el;
+   var rightBtn = bz.Creative.getElementByName("rightButton").el;
+   var locationBtn = bz.Creative.getElementByName("locationDrop").el;
+   
+   leftBtn.style.zIndex = 22;
+   leftBtn.addEventListener("click", function () {
+	propInview(); // fires on click listen so it takes the previous slide property
+	bz.Creative.triggerAnalyticsEvent('leftBtnclk', bz.Constants.EventType.Interaction, {
+	 eleid: "leftBtnclk",
+	 elen: "leftButtonClick" // in view property name
+	 //elet: "HOTSPOT_V2",
+	 // evt: "INTERACTION"
+	});
+});
+   
+   rightBtn.style.zIndex = 22;
+   rightBtn.addEventListener("click", function () {
+	propInview(); // fires on click listen so it takes the previous slide property
+	bz.Creative.triggerAnalyticsEvent('rightBtnclk', bz.Constants.EventType.Interaction, {
+	 eleid: "rightBtnclk",
+	 elen: "rightButtonClick" // in view property name
+	 //elet: "HOTSPOT_V2",
+	 // evt: "INTERACTION"
+	});
+});
+
+locationBtn.style.zIndex = 22;
+locationBtn.addEventListener("click", function(e){
+	console.log(e);
+});
+
+
+   
+   var x = fetch('https://widgets.neighbourly.co.nz/_next/data/hVJ2H7gRtvEfpkVl_91ch/showcaseplus.json?latitude=-35.35256460500929&longitude=173.57935231475525&radiusKms=100')
+  .then((response) => response.json())
+  .then((data) => {
+      console.log(data);
+      var ele = bz.Creative.getElementByName(FEED_JSON_ELEMENT).el;
+      const products = data.pageProps.listings.map((a) => ({
+		
+        image_link: 'https://cdn.neighbourly.co.nz/images/cache/800_low_quality/realestate_listing_images/' + a.realestateListingImages[0].path,
+        id: a.id,
+        link: a.realestateOriginLink,
+          title: '',
+          price: a.realestateListingPrice.priceDisplay,
+      }));
+	  
+      console.log(products);
+      ele.innerHTML = JSON.stringify(products);
+
+      initialize();
+    //   "https://cdn.neighbourly.co.nz/images/cache/800_low_quality/realestate_listing_images/63a13914493550.19639296.jpeg"
+    //   "https://bayleys-pri-images-cdn-endpoint.azureedge.net/listing-images/1003178/1003178_2_Listing_v2.jpg?"
+ });
+   function initialize() {
+	injectDNSPrefetchLinks([
+	 "https://cdn.jsdelivr.net/"
+	]);
+	.....
+   
+	
+
+   \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\VERY IMPORTANAT\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+   var ITEMS_PER_VIEW = 4;
+   var FEED_JSON_ELEMENT = "RawJSON";
+   var LEFT_BUTTON_ELEMENT = "leftButton";
+   var RIGHT_BUTTON_ELEMENT = "rightButton";
+   var LOCATION_ELEMENT = "locationDrop";
+   var DROP_DOWN = bz.Creative.getElementByName("Hotspot 2").el
+   var logger = new Logger(Logger.levels.ERRORS); // TODO Revert to ERROR for production & INFO for checking the output
+   
+   var leftBtn = bz.Creative.getElementByName("leftButton").el;
+   var rightBtn = bz.Creative.getElementByName("rightButton").el;
+   var locationBtn = bz.Creative.getElementByName("locationDrop").el;
+   // dropdown box
+   var selection = document.createElement("select");
+   
+   
+   DROP_DOWN.appendChild(selection);
+
+   var array = ["Christchurch 8042","Foxton Beach 4815","Palmerston North 4410","Palmerston North 4414","Wānaka 9305","Tekapo","Renwick 7204","New Plymouth 4312","17 Normanby Street"];
+   for (var i = 0; i < array.length; i++) {
+    var option = document.createElement("option");
+    option.value = array[i];
+    option.text = array[i];
+    selection.appendChild(option);
+}
+
+
+   leftBtn.style.zIndex = 22;
+   leftBtn.addEventListener("click", function () {
+	propInview(); // fires on click listen so it takes the previous slide property
+	bz.Creative.triggerAnalyticsEvent('leftBtnclk', bz.Constants.EventType.Interaction, {
+	 eleid: "leftBtnclk",
+	 elen: "leftButtonClick" // in view property name
+	 //elet: "HOTSPOT_V2",
+	 // evt: "INTERACTION"
+	});
+});
+   
+   rightBtn.style.zIndex = 22;
+   rightBtn.addEventListener("click", function () {
+	propInview(); // fires on click listen so it takes the previous slide property
+	bz.Creative.triggerAnalyticsEvent('rightBtnclk', bz.Constants.EventType.Interaction, {
+	 eleid: "rightBtnclk",
+	 elen: "rightButtonClick" // in view property name
+	 //elet: "HOTSPOT_V2",
+	 // evt: "INTERACTION"
+	});
+});
+
+locationBtn.style.zIndex = 22;
+locationBtn.addEventListener("click", function(e){
+	console.log(e);
+});
+
+
+   
+   var x = fetch('https://widgets.neighbourly.co.nz/_next/data/hVJ2H7gRtvEfpkVl_91ch/showcaseplus.json?latitude=-35.35256460500929&longitude=173.57935231475525&radiusKms=100')
+  .then((response) => response.json())
+  .then((data) => {
+      console.log(data);
+      var ele = bz.Creative.getElementByName(FEED_JSON_ELEMENT).el;
+	  //const products = data.pageProps.listings[0]["id"];
+	for (let i = 0; i < data.pageProps.listings.length; i++) {
+		const product = data.pageProps.listings[i]["realestateListingAddress"]["location"];
+		console.log(product);
+		for(let j = 0; j < data.pageProps.listings[i]["realestateListingImages"].length; j++){
+			const products2 = data.pageProps.listings[i]["realestateListingImages"][j]["path"];
+			image_link: "https://cdn.neighbourly.co.nz/images/cache/800_low_quality/realestate_listing_images/" + products2;
+			console.log("https://cdn.neighbourly.co.nz/images/cache/800_low_quality/realestate_listing_images/" + products2);
+		}
+	  }
+	 
+    //   const products = data.pageProps.listings.map((a, x) => ({
+		
+    //     image_link: a.realestateListingAddress.location,
+    
+    //   }));
+
+      ele.innerHTML = JSON.stringify(data);
+
+      initialize();
+
+
+	  \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+
+	  /* globals bz */
+function Logger(level) {
+	this.level = level || Logger.levels.ERROR;
+   }
+   
+   Logger.levels = {
+	ERROR: 0,
+	WARN: 1,
+	TEST: 2,
+	INFO: 3
+   };
+   
+   Logger.prototype = {
+	info: function () {
+	 if (this.level >= Logger.levels.INFO) {
+	  console.log.apply(console, arguments);
+	 }
+	},
+	warn: function () {
+	 if (this.level >= Logger.levels.WARN) {
+	  console.log.apply(console, arguments);
+	 }
+	},
+	test: function () {
+	 if (this.level >= Logger.levels.TEST) {
+	  console.log.apply(console, arguments);
+	 }
+	},
+	error: function () {
+	 if (this.level >= Logger.levels.ERROR) {
+	  console.log.apply(console, arguments);
+	 }
+	}
+   };
+   
+   var ITEMS_PER_VIEW = 4;
+   var FEED_JSON_ELEMENT = "RawJSON";
+   var LEFT_BUTTON_ELEMENT = "leftButton";
+   var RIGHT_BUTTON_ELEMENT = "rightButton";
+   var LOCATION_ELEMENT = "locationDrop";
+   var DROP_DOWN = bz.Creative.getElementByName("Hotspot 2").el
+   var logger = new Logger(Logger.levels.ERRORS); // TODO Revert to ERROR for production & INFO for checking the output
+   
+   var leftBtn = bz.Creative.getElementByName("leftButton").el;
+   var rightBtn = bz.Creative.getElementByName("rightButton").el;
+   var locationBtn = bz.Creative.getElementByName("locationDrop").el;
+   // dropdown box
+   var selection = document.createElement("select");
+   
+   
+   DROP_DOWN.appendChild(selection);
+
+//    var locMap = { Christchurch: [{lat: '', long: ''}], Tekapo: [{ lat: '', long: ''}]}
+   var array = {"Kerikeri_0230":[{lat: '-35.228554', lon: '173.949844'}]},
+   				{"Waipapa_0295":[{lat: '-35.1898342', lon: '173.9085455'}]},
+				{"Kerikeri_0293":[{lat: '-35.252547', lon: '173.9334894'}]},
+				{"Waipapa_0295":[{lat: '-35.1947288', lon: '173.8526243'}]},
+				{"Taipa_0420":[{lat: '-34.99315', lon: '173.461363'}]},
+				{"Kaeo_0295":[{lat: '-35.1258322', lon: '173.9339652'}]},
+				{"Waipapa_0295":[{lat: '-35.1839468', lon: '173.8960913'}]},
+				{"Taupō_Bay_0494":[{lat: '-34.9904115', lon: '173.7055749'}]},
+				{"43_Mako_Street":[{lat: '-34.9960271', lon: '173.710135'}]},
+				{"Kerikeri":[{lat: '-35.207945', lon: '173.95024'}]};
+   for (var i = 0; i < array.length; i++) {
+    var option = document.createElement("option");
+    option.value = array[i];
+    option.text = array[i];
+    selection.appendChild(option);
+}
+
+
+   leftBtn.style.zIndex = 22;
+   leftBtn.addEventListener("click", function () {
+	propInview(); // fires on click listen so it takes the previous slide property
+	bz.Creative.triggerAnalyticsEvent('leftBtnclk', bz.Constants.EventType.Interaction, {
+	 eleid: "leftBtnclk",
+	 elen: "leftButtonClick" // in view property name
+	 //elet: "HOTSPOT_V2",
+	 // evt: "INTERACTION"
+	});
+});
+   
+   rightBtn.style.zIndex = 22;
+   rightBtn.addEventListener("click", function () {
+	propInview(); // fires on click listen so it takes the previous slide property
+	bz.Creative.triggerAnalyticsEvent('rightBtnclk', bz.Constants.EventType.Interaction, {
+	 eleid: "rightBtnclk",
+	 elen: "rightButtonClick" // in view property name
+	 //elet: "HOTSPOT_V2",
+	 // evt: "INTERACTION"
+	});
+});
+
+locationBtn.style.zIndex = 22;
+locationBtn.addEventListener("click", function(e){
+	console.log(e);
+});
+
+
+   
+   var x = fetch('https://widgets.neighbourly.co.nz/_next/data/hVJ2H7gRtvEfpkVl_91ch/showcaseplus.json')
+  .then((response) => response.json())
+  .then((data) => {
+      console.log(data);
+      var ele = bz.Creative.getElementByName(FEED_JSON_ELEMENT).el;
+	for (let i = 0; i < data.pageProps.listings.length; i++) {
+		const product = data.pageProps.listings[i]["realestateListingAddress"]["location"];
+		console.log(product);
+		for(let j = 0; j < data.pageProps.listings[i]["realestateListingImages"].length; j++){
+			const products2 = data.pageProps.listings[i]["realestateListingImages"][j]["path"];
+			//image_link: "https://cdn.neighbourly.co.nz/images/cache/800_low_quality/realestate_listing_images/" + products2;
+			console.log("https://cdn.neighbourly.co.nz/images/cache/800_low_quality/realestate_listing_images/" + products2);
+		}
+	  }
+	 
+    //   const products = data.pageProps.listings.map((a, x) => ({
+		
+    //     image_link: a.realestateListingAddress.location,
+    
+    //   }));
+
+      ele.innerHTML = JSON.stringify(data);
+
+      initialize();
+    //   "https://cdn.neighbourly.co.nz/images/cache/800_low_quality/realestate_listing_images/63a13914493550.19639296.jpeg"
+    //   "https://bayleys-pri-images-cdn-endpoint.azureedge.net/listing-images/1003178/1003178_2_Listing_v2.jpg?"
+ });
+   function initialize() {
+	injectDNSPrefetchLinks([
+	 "https://cdn.jsdelivr.net/"
+	]);
+	...
+   
+   **************************************************************?????????????////////////////////////////////////////////////////////////////
+
+
+   /* globals bz */
+function Logger(level) {
+	this.level = level || Logger.levels.ERROR;
+  }
+  
+  Logger.levels = {
+	ERROR: 0,
+	WARN: 1,
+	TEST: 2,
+	INFO: 3,
+  };
+  
+  Logger.prototype = {
+	info: function () {
+	  if (this.level >= Logger.levels.INFO) {
+		console.log.apply(console, arguments);
+	  }
+	},
+	warn: function () {
+	  if (this.level >= Logger.levels.WARN) {
+		console.log.apply(console, arguments);
+	  }
+	},
+	test: function () {
+	  if (this.level >= Logger.levels.TEST) {
+		console.log.apply(console, arguments);
+	  }
+	},
+	error: function () {
+	  if (this.level >= Logger.levels.ERROR) {
+		console.log.apply(console, arguments);
+	  }
+	},
+  };
+  
+  var ITEMS_PER_VIEW = 4;
+  var FEED_JSON_ELEMENT = "RawJSON";
+  var LEFT_BUTTON_ELEMENT = "leftButton";
+  var RIGHT_BUTTON_ELEMENT = "rightButton";
+  var LOCATION_ELEMENT = "locationDrop";
+  var DROP_DOWN = bz.Creative.getElementByName("Hotspot 2").el;
+  var logger = new Logger(Logger.levels.ERRORS); // TODO Revert to ERROR for production & INFO for checking the output
+  
+  var leftBtn = bz.Creative.getElementByName("leftButton").el;
+  var rightBtn = bz.Creative.getElementByName("rightButton").el;
+  var locationBtn = bz.Creative.getElementByName("locationDrop").el;
+  var selection = document.createElement("select");
+  
+  DROP_DOWN.appendChild(selection);
+  
+  leftBtn.style.zIndex = 22;
+  leftBtn.addEventListener("click", function () {
+	propInview(); // fires on click listen so it takes the previous slide property
+	bz.Creative.triggerAnalyticsEvent(
+	  "leftBtnclk",
+	  bz.Constants.EventType.Interaction,
+	  {
+		eleid: "leftBtnclk",
+		elen: "leftButtonClick", // in view property name
+		//elet: "HOTSPOT_V2",
+		// evt: "INTERACTION"
+	  }
+	);
+  });
+  
+  rightBtn.style.zIndex = 22;
+  rightBtn.addEventListener("click", function () {
+	propInview(); // fires on click listen so it takes the previous slide property
+	bz.Creative.triggerAnalyticsEvent(
+	  "rightBtnclk",
+	  bz.Constants.EventType.Interaction,
+	  {
+		eleid: "rightBtnclk",
+		elen: "rightButtonClick", // in view property name
+		//elet: "HOTSPOT_V2",
+		// evt: "INTERACTION"
+	  }
+	);
+  });
+  
+  
+  var x = fetch(
+	"https://widgets.neighbourly.co.nz/_next/data/hVJ2H7gRtvEfpkVl_91ch/showcaseplus.json"
+  ) //
+	.then((response) => response.json())
+	.then((data) => {
+	  console.log(data);
+	  var ele = bz.Creative.getElementByName(FEED_JSON_ELEMENT).el;
+	  const products = data.pageProps.listings.map((a) => ({
+		  
+		  image_link: 'https://cdn.neighbourly.co.nz/images/cache/800_low_quality/realestate_listing_images/' + a.realestateListingImages[0].path,
+		  id: a.id,
+		  link: a.realestateOriginLink,
+			title: '',
+			price: a.realestateListingPrice.priceDisplay,
+		}));
+		console.log(products);
+		ele.innerHTML = JSON.stringify(products);
+  
+	  var locMap = [
+		{ name: "Kerikeri_0230"},
+		{ name: "Waipapa_0295"},
+		{ name: "Kerikeri_0293"},
+		{ name: "Pungaere_Road"},
+		{ name: "Taipa_0420"},
+		{ name: "Kaeo_0295"},
+		{ name: "Ness_Road"},
+		{ name: "Taupō_Bay_0494"},
+		{ name: "Mako_Street"},
+		{ name: "Kerikeri"},
+	  ];
+	  locMap.forEach(function (item) {
+		var option = document.createElement("option");
+		option.value = item.name;
+		option.text = item.name;
+		selection.appendChild(option);
+	  });
+  
+	  var selectedLocation = {};
+	  selection.onchange = function (event) {
+		selectedLocation = locMap.find(function (l) {
+		  l.name === event.target.value;
+  		});
+		//var p = filterLocation();
+  
+		fetch(
+		  "https://widgets.neighbourly.co.nz/_next/data/hVJ2H7gRtvEfpkVl_91ch/showcaseplus.json?latitude=-35.35256460500929&longitude=173.57935231475525&radiusKms=100"
+		)
+		  .then((response) => response.json())
+		  .then(function (product) {
+			ele.innerHTML = JSON.stringify(product);
+			console.log(product);
+			for (let i = 0; i < data.pageProps.listings.length; i++) {
+			  const productLocation =
+				data.pageProps.listings[i]["realestateListingAddress"]["location"];
+			  console.log(productLocation);
+			  for (
+				let j = 0;
+				j < data.pageProps.listings[i]["realestateListingImages"].length;
+				j++
+			  ) {
+				const products2 =
+				  data.pageProps.listings[i]["realestateListingImages"][j]["path"];
+				console.log(
+				  "https://cdn.neighbourly.co.nz/images/cache/800_low_quality/realestate_listing_images/" +
+					products2
+				);
+			  }
+			}
+			initialize();
+  
+		  });
+  
+		console.log(selectedLocation); //called after being selected
+	  };
+  
+	  ele.innerHTML = JSON.stringify(data);
+  
+	  initialize();
+	});
+  
+  function initialize() {
+	injectDNSPrefetchLinks(["https://cdn.jsdelivr.net/"]);
+  
+	injectCSS([
+	  "https://cdn.jsdelivr.net/npm/swiper@6.6.2/swiper-bundle.min.css",
+	]);
+	....
+	
+
+  \\\\\\\\\\\\\\\new mod////////////////////////////////////////////////////
+  /* globals bz */
+function Logger(level) {
+	this.level = level || Logger.levels.ERROR;
+   }
+   
+   Logger.levels = {
+	ERROR: 0,
+	WARN: 1,
+	TEST: 2,
+	INFO: 3
+   };
+   
+   Logger.prototype = {
+	info: function () {
+	 if (this.level >= Logger.levels.INFO) {
+	  console.log.apply(console, arguments);
+	 }
+	},
+	warn: function () {
+	 if (this.level >= Logger.levels.WARN) {
+	  console.log.apply(console, arguments);
+	 }
+	},
+	test: function () {
+	 if (this.level >= Logger.levels.TEST) {
+	  console.log.apply(console, arguments);
+	 }
+	},
+	error: function () {
+	 if (this.level >= Logger.levels.ERROR) {
+	  console.log.apply(console, arguments);
+	 }
+	}
+   };
+   
+   var ITEMS_PER_VIEW = 4;
+   var FEED_JSON_ELEMENT = "RawJSON";
+   var LEFT_BUTTON_ELEMENT = "leftButton";
+   var RIGHT_BUTTON_ELEMENT = "rightButton";
+   var LOCATION_ELEMENT = "locationDrop";
+   var DROP_DOWN = bz.Creative.getElementByName("Hotspot 2").el;
+   var logger = new Logger(Logger.levels.ERRORS); // TODO Revert to ERROR for production & INFO for checking the output
+   
+   var leftBtn = bz.Creative.getElementByName("leftButton").el;
+   var rightBtn = bz.Creative.getElementByName("rightButton").el;
+   var locationBtn = bz.Creative.getElementByName("locationDrop").el;
+   var selection = document.createElement("select");
+
+   DROP_DOWN.appendChild(selection);
+
+   leftBtn.style.zIndex = 22;
+   leftBtn.addEventListener("click", function () {
+	propInview(); // fires on click listen so it takes the previous slide property
+	bz.Creative.triggerAnalyticsEvent('leftBtnclk', bz.Constants.EventType.Interaction, {
+	 eleid: "leftBtnclk",
+	 elen: "leftButtonClick" // in view property name
+	 //elet: "HOTSPOT_V2",
+	 // evt: "INTERACTION"
+	});
+});
+   
+   rightBtn.style.zIndex = 22;
+   rightBtn.addEventListener("click", function () {
+	propInview(); // fires on click listen so it takes the previous slide property
+	bz.Creative.triggerAnalyticsEvent('rightBtnclk', bz.Constants.EventType.Interaction, {
+	 eleid: "rightBtnclk",
+	 elen: "rightButtonClick" // in view property name
+	 //elet: "HOTSPOT_V2",
+	 // evt: "INTERACTION"
+	});
+});
+
+
+
+   
+   var x = fetch('https://widgets.neighbourly.co.nz/_next/data/hVJ2H7gRtvEfpkVl_91ch/showcaseplus.json?latitude=-35.35256460500929&longitude=173.57935231475525&radiusKms=100')
+  .then((response) => response.json())
+  .then((data) => {
+      console.log(data);
+      var ele = bz.Creative.getElementByName(FEED_JSON_ELEMENT).el;
+      const products = data.pageProps.listings.map((a) => ({
+		
+        image_link: 'https://cdn.neighbourly.co.nz/images/cache/800_low_quality/realestate_listing_images/' + a.realestateListingImages[0].path,
+        id: a.id,
+        link: a.realestateOriginLink,
+          title: '',
+          price: a.realestateListingPrice.priceDisplay,
+      }));
+	  
+      console.log(products);
+      ele.innerHTML = JSON.stringify(products);
+
+      initialize();
+
+	  var locMap = [
+		{ name: "Kerikeri_0230"},
+		{ name: "Waipapa_0295"},
+		{ name: "Kerikeri_0293"},
+		{ name: "Pungaere_Road"},
+		{ name: "Taipa_0420"},
+		{ name: "Kaeo_0295"},
+		{ name: "Ness_Road"},
+		{ name: "Taupō_Bay_0494"},
+		{ name: "Mako_Street"},
+		{ name: "Kerikeri"},
+	  ];
+	  locMap.forEach(function (item) {
+		var option = document.createElement("option");
+		option.value = item.name;
+		option.text = item.name;
+		selection.appendChild(option);
+	  });
+  
+	  var selectedLocation = {};
+	  selection.onchange = function (event) {
+		selectedLocation = locMap.find(function (l) {
+		  l.name === event.target.value;
+  		});
+		
+		initialize();
+  	}
+    });
+
+
+
+   function initialize() {
+	injectDNSPrefetchLinks([
+	 "https://cdn.jsdelivr.net/"
+	]);
+	......
+	
+
+   /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\//\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
+
+
+   /* globals bz */
+function Logger(level) {
+	this.level = level || Logger.levels.ERROR;
+  }
+  
+  Logger.levels = {
+	ERROR: 0,
+	WARN: 1,
+	TEST: 2,
+	INFO: 3,
+  };
+  
+  Logger.prototype = {
+	info: function () {
+	  if (this.level >= Logger.levels.INFO) {
+		console.log.apply(console, arguments);
+	  }
+	},
+	warn: function () {
+	  if (this.level >= Logger.levels.WARN) {
+		console.log.apply(console, arguments);
+	  }
+	},
+	test: function () {
+	  if (this.level >= Logger.levels.TEST) {
+		console.log.apply(console, arguments);
+	  }
+	},
+	error: function () {
+	  if (this.level >= Logger.levels.ERROR) {
+		console.log.apply(console, arguments);
+	  }
+	},
+  };
+  
+  var ITEMS_PER_VIEW = 4;
+  var FEED_JSON_ELEMENT = "RawJSON";
+  var LEFT_BUTTON_ELEMENT = "leftButton";
+  var RIGHT_BUTTON_ELEMENT = "rightButton";
+  var LOCATION_ELEMENT = "locationDrop";
+  var DROP_DOWN = bz.Creative.getElementByName("Hotspot 2").el;
+  var logger = new Logger(Logger.levels.ERRORS); // TODO Revert to ERROR for production & INFO for checking the output
+  
+  var leftBtn = bz.Creative.getElementByName("leftButton").el;
+  var rightBtn = bz.Creative.getElementByName("rightButton").el;
+  var locationBtn = bz.Creative.getElementByName("locationDrop").el;
+  var selection = document.createElement("select");
+  
+  DROP_DOWN.appendChild(selection);
+  
+  leftBtn.style.zIndex = 22;
+  leftBtn.addEventListener("click", function () {
+	propInview(); // fires on click listen so it takes the previous slide property
+	bz.Creative.triggerAnalyticsEvent(
+	  "leftBtnclk",
+	  bz.Constants.EventType.Interaction,
+	  {
+		eleid: "leftBtnclk",
+		elen: "leftButtonClick", // in view property name
+		//elet: "HOTSPOT_V2",
+		// evt: "INTERACTION"
+	  }
+	);
+  });
+  
+  rightBtn.style.zIndex = 22;
+  rightBtn.addEventListener("click", function () {
+	propInview(); // fires on click listen so it takes the previous slide property
+	bz.Creative.triggerAnalyticsEvent(
+	  "rightBtnclk",
+	  bz.Constants.EventType.Interaction,
+	  {
+		eleid: "rightBtnclk",
+		elen: "rightButtonClick", // in view property name
+		//elet: "HOTSPOT_V2",
+		// evt: "INTERACTION"
+	  }
+	);
+  });
+  
+  
+  var x = fetch(
+	"https://widgets.neighbourly.co.nz/_next/data/hVJ2H7gRtvEfpkVl_91ch/showcaseplus.json"
+  ) //
+	.then((response) => response.json())
+	.then((data) => {
+	  console.log(data);
+	  var ele = bz.Creative.getElementByName(FEED_JSON_ELEMENT).el;
+	  const products = data.pageProps.listings.map((a) => ({
+		  
+		  image_link: 'https://cdn.neighbourly.co.nz/images/cache/800_low_quality/realestate_listing_images/' + a.realestateListingImages[0].path,
+		  id: a.id,
+		  link: a.realestateOriginLink,
+			title: '',
+			price: a.realestateListingPrice.priceDisplay,
+		}));
+		console.log(products);
+		ele.innerHTML = JSON.stringify(products);
+
+		fetch(
+			//   "https://widgets.neighbourly.co.nz/_next/data/hVJ2H7gRtvEfpkVl_91ch/showcaseplus.json?latitude=-35.35256460500929&longitude=173.57935231475525&radiusKms=100"
+			"https://widgets.neighbourly.co.nz/_next/data/hVJ2H7gRtvEfpkVl_91ch/showcaseplus.json?latitude=${}&longitude=${}&radiusKms=100"
+			
+			)
+			  .then((response) => response.json())
+			  .then(function (product) {
+				ele.innerHTML = JSON.stringify(product);
+				console.log(product);
+				const streetMap = new Map();
+				const imageMap = new Map();
+				for (let i = 0; i < data.pageProps.listings.length; i++) {
+					const lat = data.pageProps.listings[i]["realestateListingAddress"]["location"]["lat"];
+					const lon = data.pageProps.listings[i]["realestateListingAddress"]["location"]["lon"];
+					const finalCod = lat.toString() + "_" +lon.toString() ;
+					
+				 // console.log(productLocation);
+				  const street = data.pageProps.listings[i]["realestateListingAddress"]["street"];
+				  streetMap.set(street,finalCod);
+				console.log("street map____"+ streetMap.get(street) );
+				let arrayImage = [];
+				  for (
+					let j = 0;
+					j < data.pageProps.listings[i]["realestateListingImages"].length;
+					j++
+				  ) {
+					
+					const products2 =
+					  data.pageProps.listings[i]["realestateListingImages"][j]["path"];
+					  const imagePath = "https://cdn.neighbourly.co.nz/images/cache/800_low_quality/realestate_listing_images/" +
+					  products2;
+					  arrayImage.push(imagePath);
+					  console.log("for : " + finalCod + "setting " + imagePath);
+					  imageMap.set(finalCod,arrayImage)
+					  console.log(arrayImage);
+					}
+					//Pakura Street,Tauhinu Avenue,Colemans Road,Weld Street,Hospital Road,Locking Street,Charlotte Street,South Road,Davies Drive,Plymouth Road
+				}
+				//-39.1565626_174.0173413
+				const locationView = streetMap.get("Pakura Street")
+				const imageUrl = imageMap.get(locationView);
+				console.log("location view__" + locationView + "Image URL____" + imageUrl);
+				console.log("imagemap keys_______"+[...imageMap.keys()]);
+				//console.log("imageMap location:   "+imageMap.get("-43.64836_172.472093"));
+				console.log(imageMap);
+				
+                const keyArray = [...streetMap.keys()]//streetMap.keys();
+
+		        console.log(keyArray+"keyyy arraraayy")
+                var locMap = [ ];
+        console.log("printing key array_________________________________________________________");
+		for(let i = 0; i<keyArray.length;i++){
+				locMap.push({name: keyArray[i]})
+			}
+            //console.log(locMap+"__________LocMap");
+		
+		
+		  locMap.forEach(function (item) {
+			var option = document.createElement("option");
+			option.value = item.name;
+			option.text = item.name;
+			selection.appendChild(option);
+		  });
+		
+          var selectedLocation = {};
+		  selection.onchange = function (event) {
+			selectedLocation = locMap.find(function (l) {
+			  if(l.name === event.target.value){
+                const abcd = streetMap.get(event.target.value);
+                const xyz = new Array(imageMap.get(abcd))      //imageMap.get(abcd)
+                console.log(imageMap);
+                console.log ("this is the image of selected target" + xyz);
+              }
+
+             // console.log(imageUrl)
+              console.log("name L___________"+ l.name)
+              console.log("event______________"+event.target.value)
+              
+		});
+        console.log(selectedLocation);
+			 
+			initialize();
+			 //called after being selected
+	  };
+				initialize();
+				
+				//console.log([...mapObject.keys()]);
+			});
+		
+	  ele.innerHTML = JSON.stringify(data);
+  
+	  initialize();
+	});
+  
+  function initialize() {
+	injectDNSPrefetchLinks(["https://cdn.jsdelivr.net/"]);
+  
+	injectCSS([
+	  "https://cdn.jsdelivr.net/npm/swiper@6.6.2/swiper-bundle.min.css",
+	]);
+	.....
+	
+
+
+
+  // selectedLocation = locMap.find(function (l) {
+				//   if(l.name === event.target.value){
+				// 	const streetMapValue = streetMap.get(event.target.value);
+				// 	const respondToValue = new Array(imageMap.get(streetMapValue))      //imageMap.get(abcd)
+				// 	console.log ("this is the image of selected target" + respondToValue);
+					
+				// }
+
+
+/\/\/\//\\\\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\//\"Dynamic dropdown selection"/\/\//\/\/\/\/\/\/\///\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
+
+function createDropDown () {
+	fetch(
+		"https://widgets.neighbourly.co.nz/_next/data/hVJ2H7gRtvEfpkVl_91ch/showcaseplus.json"
+	  )
+		.then((response) => response.json())
+		.then((data) => {
+			for (let i = 0; i < data.pageProps.listings.length; i++) {
+				const street = data.pageProps.listings[i]["realestateListingAddress"]["street"];
+				streetMap.set(street, data.pageProps.listings[i]["realestateListingAddress"]["location"]);
+			}
+
+			const keyArray = [...streetMap.keys()]//streetMap.keys();
+			var locMap = [ ];
+			for(let i = 0; i<keyArray.length;i++){
+				locMap.push({name: keyArray[i]})
+			}
+			locMap.forEach(function (item) {
+				var option = document.createElement("option");
+				option.value = item.name;
+				option.text = item.name;
+				selection.appendChild(option);
+			  });
+			selection.onchange = function (event) {
+				getProp(streetMap.get(event.target.value))
+
+		  };
+		})
+}
