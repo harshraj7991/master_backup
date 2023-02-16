@@ -1,0 +1,845 @@
+/* globals bz */
+function Logger(level) {
+  this.level = level || Logger.levels.ERROR;
+}
+
+Logger.levels = {
+  ERROR: 0,
+  WARN: 1,
+  TEST: 2,
+  INFO: 3,
+};
+
+Logger.prototype = {
+  info: function () {
+    if (this.level >= Logger.levels.INFO) {
+      console.log.apply(console, arguments);
+    }
+  },
+  warn: function () {
+    if (this.level >= Logger.levels.WARN) {
+      console.log.apply(console, arguments);
+    }
+  },
+  test: function () {
+    if (this.level >= Logger.levels.TEST) {
+      console.log.apply(console, arguments);
+    }
+  },
+  error: function () {
+    if (this.level >= Logger.levels.ERROR) {
+      console.log.apply(console, arguments);
+    }
+  },
+};
+
+var ITEMS_PER_VIEW = 3;
+var FEED_JSON_ELEMENT = "RawJSON";
+var LEFT_BUTTON_ELEMENT = "leftButton";
+var RIGHT_BUTTON_ELEMENT = "rightButton";
+var LOCATION_ELEMENT = "locationDrop";
+var DROP_DOWN = bz.Creative.getElementByName("Hotspot 2").el;
+var logger = new Logger(Logger.levels.ERRORS); // TODO Revert to ERROR for production & INFO for checking the output
+
+var leftBtn = bz.Creative.getElementByName("leftButton").el;
+var rightBtn = bz.Creative.getElementByName("rightButton").el;
+var locationBtn = bz.Creative.getElementByName("locationDrop").el;
+var selection = document.createElement("select");
+
+DROP_DOWN.style.zIndex = 22;
+DROP_DOWN.appendChild(selection);
+
+leftBtn.style.zIndex = 22;
+leftBtn.addEventListener("click", function () {
+  propInview(); // fires on click listen so it takes the previous slide property
+  bz.Creative.triggerAnalyticsEvent(
+    "leftBtnclk",
+    bz.Constants.EventType.Interaction,
+    {
+      eleid: "leftBtnclk",
+      elen: "leftButtonClick", // in view property name
+    }
+  );
+});
+
+rightBtn.style.zIndex = 22;
+rightBtn.addEventListener("click", function () {
+  propInview(); // fires on click listen so it takes the previous slide property
+  bz.Creative.triggerAnalyticsEvent(
+    "rightBtnclk",
+    bz.Constants.EventType.Interaction,
+    {
+      eleid: "rightBtnclk",
+      elen: "rightButtonClick", // in view property name
+    }
+  );
+});
+
+bz.Creative.getElementByName("CarouselContainer").el;
+fetch(
+  "https://widgets.neighbourly.co.nz/_next/data/hVJ2H7gRtvEfpkVl_91ch/showcaseplus.json"
+)
+  .then((response) => response.json())
+  .then(function (product) {
+    products = product.pageProps.listings.map((a) => {
+      var avatarUrlLink = a.realestateAgents[0].avatarUrl;
+      var logoLink = a.realestateOffices[0].rectangularLogo;
+      var regex = new RegExp("^/bundles");
+      var baseUrl = regex.test(avatarUrlLink)
+        ? "https://cdn.neighbourly.co.nz"
+        : "https://cdn.neighbourly.co.nz/images/cache/800_low_quality";
+      var finalUrl = baseUrl + avatarUrlLink;
+
+      return {
+        image_link:
+          "https://cdn.neighbourly.co.nz/images/cache/800_low_quality/realestate_listing_images/" +
+          a.realestateListingImages[0].path,
+        id: a.id,
+        link: a.realestateOriginLink,
+        price: a.realestateListingPrice.priceDisplay,
+        logo:
+        logoLink ? "https://cdn.neighbourly.co.nz/images/cache/800_low_quality" +
+        logoLink : null,
+        title: a.subject,
+        address: a.realestateListingAddress.formattedAddress,
+        agent: finalUrl,
+        agent_address:
+          a.realestateAgents[0].firstName +
+          " " +
+          a.realestateAgents[0].lastName,
+        href: a.realestateOriginLink,
+      };
+    });
+    initialize();
+  });
+
+let products = [];
+
+var locMap = [
+  {
+    name: "Northland",
+    lat: -35.35256460500929,
+    lon: 173.57935231475525,
+    radius: 100,
+  },
+  {
+    name: "Auckland",
+    lat: -36.851141161773086,
+    lon: 174.76032428213333,
+    radius: 100,
+  },
+  {
+    name: "Waikato",
+    lat: -37.765564991210006,
+    lon: 175.26984968191266,
+    radius: 100,
+  },
+  {
+    name: "Bay of Plenty",
+    lat: -37.72569879956075,
+    lon: 176.12248539077999,
+    radius: 100,
+  },
+  {
+    name: "Taranaki",
+    lat: -39.26727019219412,
+    lon: 174.22286249373357,
+    radius: 100,
+  },
+  {
+    name: "Hawkes Bay",
+    lat: -39.57828284481576,
+    lon: 177.11499331492175,
+    radius: 100,
+  },
+  {
+    name: "Whanganui",
+    lat: -39.925542281571424,
+    lon: 174.95937379403864,
+    radius: 100,
+  },
+  {
+    name: "Manawatu",
+    lat: -40.044137359552856,
+    lon: 175.45786570387247,
+    radius: 70,
+  },
+  {
+    name: "Wairarapa",
+    lat: -40.3451947360695,
+    lon: 175.6191908546184,
+    radius: 100,
+  },
+  {
+    name: "Wellington",
+    lat: -41.20891361687499,
+    lon: 175.15886773714436,
+    radius: 60,
+  },
+  {
+    name: "Nelson",
+    lat: -41.0102361716957,
+    lon: 172.38833216031028,
+    radius: 100,
+  },
+  {
+    name: "Marlborough",
+    lat: -41.66442477174094,
+    lon: 174.05471341500908,
+    radius: 50,
+  },
+  {
+    name: "Christchurch",
+    lat: -43.530977051335775,
+    lon: 172.62508944543438,
+    radius: 100,
+  },
+  {
+    name: "Timaru",
+    lat: -44.392256033029014,
+    lon: 171.25112469743607,
+    radius: 100,
+  },
+  {
+    name: "Dunedin",
+    lat: -45.896682995106715,
+    lon: 170.4956475653969,
+    radius: 100,
+  },
+  {
+    name: "Queenstown",
+    lat: -45.02984903532432,
+    lon: 168.6561965792747,
+    radius: 100,
+  },
+  {
+    name: "Southland",
+    lat: -46.41750248217031,
+    lon: 168.3591506848539,
+    radius: 100,
+  },
+];
+function createDropDown(selectedCity) {
+  locMap.forEach(function (item) {
+    var option = document.createElement("option");
+    option.value = item.name;
+    option.text = item.name;
+    option.selected = selectedCity == item.name;
+    selection.appendChild(option);
+  });
+  selection.onchange = function (event) {
+    const locMapProperties = locMap.find(
+      (element) => element.name === event.target.value
+    );
+
+    // console.log(locMapProperties);
+    getProp(locMapProperties);
+  };
+  //pending task if user blocks the location then track it's IP Address
+}
+
+function getProp(loc) {
+  fetch(
+    `https://widgets.neighbourly.co.nz/_next/data/hVJ2H7gRtvEfpkVl_91ch/showcaseplus.json?latitude=${loc.lat}&longitude=${loc.lon}&radiusKms=100`
+  )
+    .then((response) => response.json())
+    .then(function (product) {
+      products = product.pageProps.listings.map((a) => {
+        var avatarUrlLink = a.realestateAgents[0].avatarUrl;
+        var logoLink = a.realestateOffices[0].rectangularLogo;
+        var regex = new RegExp("^/bundles");
+        var baseUrl = regex.test(avatarUrlLink)
+          ? "https://cdn.neighbourly.co.nz"
+          : "https://cdn.neighbourly.co.nz/images/cache/800_low_quality";
+        var finalUrl = baseUrl + avatarUrlLink;
+
+        return {
+          image_link:
+            "https://cdn.neighbourly.co.nz/images/cache/800_low_quality/realestate_listing_images/" +
+            a.realestateListingImages[0].path,
+          id: a.id,
+          link: a.realestateOriginLink,
+          price: a.realestateListingPrice.priceDisplay,
+          logo:
+          logoLink ? "https://cdn.neighbourly.co.nz/images/cache/800_low_quality" +
+            logoLink : null,
+          title: a.subject,
+          address: a.realestateListingAddress.formattedAddress,
+          agent: finalUrl,
+          agent_address:
+            a.realestateAgents[0].firstName +
+            " " +
+            a.realestateAgents[0].lastName,
+          href: a.realestateOriginLink,
+        };
+      });
+  destroyDiv();
+  initialize();
+    });
+  // destroyDiv();
+  // initialize();
+}
+
+function destroyDiv() {
+  var swiperContainer = document.querySelector(".swiper-container");
+  var carouselContainer = bz.Creative.getElementByName("Carousel_Container");
+  var parent = carouselContainer
+    ? carouselContainer.el
+    : bz.Creative.getPageByName("BannerMrc").el;
+  parent.removeChild(swiperContainer);
+}
+
+/* live location of user and dropdown updation */
+const optionsForGps = {
+  enableHighAccuracy: true,
+  timeout: 5000,
+  maximumAge: 0,
+};
+function success(pos) {
+  const crd = pos.coords;
+  var currentLat = `${crd.latitude}`;
+  var currentLon = `${crd.longitude}`;
+  // console.log("Your current position is:");
+  // console.log(`Latitude : ${crd.latitude}`);
+  // console.log(`Longitude: ${crd.longitude}`);
+  // console.log(`More or less ${crd.accuracy} meters.`);
+  var nearestLocation = locMap.reduce(function (prev, curr) {
+    var prevDist = getDistanceFromLatLonInKm(
+      currentLat,
+      currentLon,
+      prev.lat,
+      prev.lon
+    );
+    var currDist = getDistanceFromLatLonInKm(
+      currentLat,
+      currentLon,
+      curr.lat,
+      curr.lon
+    );
+    return prevDist < currDist ? prev : curr;
+  });
+
+  // console.log("nearestLocation", nearestLocation);
+  createDropDown(nearestLocation.name);
+}
+
+function error(err) {
+  console.warn(`ERROR(${err.code}): ${err.message}`);
+}
+navigator.geolocation.getCurrentPosition(success, error, optionsForGps);
+/* End of live location */
+
+/* Calculation of distance between the locations */
+
+function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+  var R = 6371; // Radius of the earth in km
+  var dLat = deg2rad(lat2 - lat1); // deg2rad below
+  var dLon = deg2rad(lon2 - lon1);
+  var a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(deg2rad(lat1)) *
+      Math.cos(deg2rad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  var d = R * c; // Distance in km
+  return d;
+}
+
+function deg2rad(deg) {
+  return deg * (Math.PI / 180);
+}
+
+function initialize() {
+  injectDNSPrefetchLinks(["https://cdn.jsdelivr.net/"]);
+
+  injectCSS([
+    "https://cdn.jsdelivr.net/npm/swiper@6.6.2/swiper-bundle.min.css",
+  ]);
+
+  injectStyles(
+    ".swiper-slide {height:200px}" +
+      ".swiper-slide-active {border-left: none;}" +
+      "[data-lbl='leftButtonIcon'], [data-lbl='rightButtonIcon'] { pointer-events: none; }" +
+      "[data-lbl='leftButtonBackground'], [data-lbl='rightButtonBackground'] { cursor: pointer !important; }"
+  );
+
+  bz.Common.loadScripts([
+    "https://cdn.jsdelivr.net/npm/swiper@6.6.2/swiper-bundle.min.js",
+  ]).then(function () {
+    initializeCarousel(bz.Common.include("Swiper"));
+  });
+
+  (window.fetch
+    ? Promise.resolve(window.fetch)
+    : bz.Common.loadScripts([
+        "https://cdn.jsdelivr.net/npm/unfetch@4.2.0/dist/unfetch.min.js",
+      ]).then(function () {
+        return bz.Common.include("unfetch");
+      })
+  ).then(function (fetch) {
+    function checkStatus(response) {
+      if (response.ok) {
+        // console.log(response, "response");
+        return response;
+      }
+
+      var error = new Error(response.statusText);
+      error.response = response;
+      return Promise.reject(error);
+    }
+
+    var fetchWithErrorHandler = function (endpoint, config) {
+      return fetch(endpoint, config).then(checkStatus);
+    };
+  });
+}
+
+function initializeCarousel(Swiper) {
+  var page = bz.Creative.getPageByName("BannerMrc").el;
+  page.style.userSelect = "none";
+  page.style.borderWidth = "1px";
+
+  var productsP = Promise.resolve(products);
+  //console.log(products)
+
+  productsP.then(function (products) {
+    bz.Common.preloadImages(
+      products.slice(0, 3).map(function (product) {
+        return product.image_link;
+      }),
+      function () {
+        var carouselContainer =
+          bz.Creative.getElementByName("Carousel_Container");
+
+        // Use Carousel_Container element as the container for the carousel or use page.
+        (carouselContainer ? carouselContainer.el : page).appendChild(
+          createSwiperCarouselDOM(products)
+        );
+
+        setupNavigationButtons();
+
+        var swiper = new Swiper(".swiper-container", {
+          loop: true,
+          autoplay: true,
+          slidesPerView: ITEMS_PER_VIEW,
+          spaceBetween: 10,
+          speed: 1000,
+          preloadImages: false,
+          navigation: {
+            nextEl: ".bz-button-next",
+            prevEl: ".bz-button-prev",
+          },
+        });
+
+        document.addEventListener(".item", function () {
+          swiper.autoplay.stop();
+        });
+      }
+    );
+  });
+}
+
+function setupNavigationButtons() {
+  var leftButton = bz.Creative.getElementByName(LEFT_BUTTON_ELEMENT);
+
+  if (!leftButton) {
+    logger.error(
+      "setupNavigationButtons: Could not find element of name " +
+        LEFT_BUTTON_ELEMENT
+    );
+  }
+
+  leftButton.el.classList.add("leftButton");
+  leftButton.el.classList.add("bz-button-prev");
+
+  var rightButton = bz.Creative.getElementByName(RIGHT_BUTTON_ELEMENT);
+
+  if (!rightButton) {
+    logger.error(
+      "setupNavigationButtons: Could not find element of name " +
+        RIGHT_BUTTON_ELEMENT
+    );
+  }
+
+  rightButton.el.classList.add("rightButton");
+  rightButton.el.classList.add("bz-button-next");
+
+  leftButton.el.firstElementChild.style.cursor = "pointer";
+  rightButton.el.firstElementChild.style.cursor = "pointer";
+}
+
+/*dropdown */
+
+function createSwiperCarouselDOM(properties) {
+  var swiperContainer = document.createElement("div");
+  swiperContainer.className = "swiper-container";
+  swiperContainer.style.left = "0";
+  swiperContainer.style.height = "125%";
+  swiperContainer.style.width = "93%";
+
+  var swiperWrapper = document.createElement("div");
+  swiperWrapper.className = "swiper-wrapper";
+
+  properties
+    .map(function (item) {
+      return createItemDOM(item);
+    })
+    .forEach(function (dom) {
+      swiperWrapper.appendChild(dom);
+    });
+
+  swiperContainer.appendChild(swiperWrapper);
+  return swiperContainer;
+}
+
+/*
+	   Item structure
+	   
+	   */
+function createItemDOM(item, url) {
+  var itemContainer = document.createElement("div");
+  itemContainer.className = "item swiper-slide";
+  itemContainer.id = "property-id-" + item.id;
+  itemContainer.style.height = "180px";
+  itemContainer.setAttribute("href", item.href);
+
+  var style = getStyleString({
+    top: "40px",
+    background: "#ffffff",
+    padding: "0px",
+    "box-sizing": "border-box",
+    width: "170px",
+    border: "1px solid #CCC;",
+    "font-family": "Roboto Condensed",
+    "border-radius": "3px",
+    color: "#909090",
+  });
+
+  itemContainer.style = style;
+
+  itemContainer.appendChild(
+    createProductImageDOM(item.image_link, item.id, item.href)
+  );
+
+  itemContainer.appendChild(createLogoDOM(item.logo));
+  var appendContainer = itemContainer.appendChild(
+    createInfoPanelDOM(item.title)
+  );
+  appendContainer.appendChild(createDescPanelDOM(item.address, item.href));
+  /**/
+  var bottomContainer = itemContainer.appendChild(
+    document.createElement("div")
+  );
+  var style = getStyleString({
+    display: "flex",
+    "margin-top": "-6px",
+    "column-gap": "2px",
+    "align-item": "center",
+    padding: "1px 8px",
+  });
+  bottomContainer.style = style;
+
+  bottomContainer.appendChild(createAgentDOM(item.agent));
+  bottomContainer.appendChild(agentAddress(item.agent_address));
+  var dummyDiv = bottomContainer.appendChild(document.createElement("div"));
+  bottomContainer.appendChild(cta(item.href));
+  var style = getStyleString({
+    "flex-grow": "1",
+  });
+  dummyDiv.style = style;
+
+  bottomContainer.addEventListener("click", function () {
+    bz.Creative.triggerAnalyticsEvent(
+      "click",
+      "Click/Tap",
+      bz.Constants.EventType.CLICKTHROUGH,
+      {
+        acts: [
+          {
+            aid: "ic" + item.id,
+            at: "Click Through",
+            a: "openurl",
+            ap: item.href,
+            an: "Open URL",
+          },
+        ],
+        eleid: "i" + item.id,
+        elen: "Image " + item.id,
+        elet: "IMAGE",
+      }
+    );
+    bz.Actions.openUrl(item.href);
+  });
+
+  //itemContainer.appendChild(tagContainer);
+  return itemContainer;
+}
+
+// property inview tracking
+function propInview() {
+  var currentSlide = document.querySelector(".swiper-slide-active");
+  if (currentSlide) {
+    bz.Creative.triggerAnalyticsEvent(
+      "p_view",
+      currentSlide.id,
+      bz.Constants.EventType.AUTO,
+      {
+        eleid: "p_view",
+        elen: currentSlide.id, // in view property name
+        //elet: "HOTSPOT_V2",
+        // evt: "INTERACTION"
+      }
+    );
+    // console.log(currentSlide.id);
+  }
+}
+setTimeout(function () {
+  propInview();
+}, 1000);
+
+function createProductImageDOM(url, id, productLink, redirect, short_title) {
+  var style = getStyleString({
+    height: "114px",
+    "background-image": "url(" + url + ")",
+    "background-size": "cover",
+    "background-repeat": "no-repeat",
+    "background-position": "center center", //"center center", "0px -54px"
+    cursor: "pointer",
+  });
+
+  var imageContainer = document.createElement("div");
+  imageContainer.className = "property-image";
+  imageContainer.style = style;
+
+  imageContainer.addEventListener("click", function () {
+    bz.Creative.triggerAnalyticsEvent(
+      "click",
+      "Click/Tap",
+      bz.Constants.EventType.CLICKTHROUGH,
+      {
+        acts: [
+          {
+            aid: "ic" + id,
+            at: "Click Through",
+            a: "openurl",
+            ap: productLink,
+            an: "Open URL",
+          },
+        ],
+        eleid: "i" + id,
+        elen: "Image " + id,
+        elet: "IMAGE",
+      }
+    );
+    // Property click count
+
+    //console.log(i_ID, "ids");
+
+    bz.Creative.triggerAnalyticsEvent(
+      "p_click",
+      this.parentNode.id,
+      bz.Constants.EventType.Interaction,
+      {
+        eleid: "p_click",
+        elen: this.parentNode.id, // in view property name
+        //elet: "HOTSPOT_V2",
+        // evt: "INTERACTION"
+      }
+    );
+    bz.Actions.openUrl(productLink);
+  });
+
+  return imageContainer;
+}
+
+function createLogoDOM(logo) {
+  
+  var style = getStyleString({
+    position: "absolute",
+    height: "44px",
+    top: "0",
+    right: "0",
+    width: "100px",
+    display: logo ? "block" : "none"
+  });
+  var containerLogo = document.createElement("img");
+  containerLogo.classList.add("containerLogo");
+  containerLogo.src = logo;
+  containerLogo.style = style;
+
+  return containerLogo;
+  //itemContainer.appendChild(containerLogo);
+}
+
+function createInfoPanelDOM(title) {
+  var style = getStyleString({
+    margin: "8px",
+    "white-space": "nowrap",
+    overflow: "hidden",
+    "text-overflow": "ellipsis",
+    "text-align": "left",
+  });
+
+  var centerText = document.createElement("p");
+  centerText.classList.add("centerText");
+  centerText.innerText = title;
+  centerText.style = style;
+
+  return centerText;
+}
+
+function createDescPanelDOM(address) {
+  var style = getStyleString({
+    margin: "2px",
+    "font-size": "0.83em",
+    cursor: "pointer",
+    margin: "0px",
+  });
+
+  var detailText = document.createElement("p");
+  detailText.classList.add("detailText");
+  detailText.innerText = address;
+  detailText.style = style;
+
+  return detailText;
+}
+
+function createAgentDOM(agent) {
+  var style = getStyleString({
+    height: "30px",
+    "padding-right": "12px",
+    //display: "flex",
+    //"margin": "5px",
+    // "column-gap": "2px"
+  });
+
+  var agentPic = document.createElement("img");
+  agentPic.classList.add("agentPic");
+  agentPic.src = agent;
+  agentPic.style = style;
+
+  return agentPic;
+}
+
+function agentAddress(agent_address) {
+  var style = getStyleString({
+    "font-size": " 0.83em",
+    "align-self": "center",
+    "white-space": "nowrap",
+    overflow: "hidden",
+    "text-overflow": "ellipsis",
+    cursor: "pointer",
+  });
+
+  var AgentText = document.createElement("p");
+  AgentText.classList.add("detailText");
+  AgentText.innerText = agent_address;
+  AgentText.style = style;
+
+  return AgentText;
+}
+
+function cta(href) {
+  var style = getStyleString({
+    "background-color": "#FFF",
+    color: "rgb(48, 186, 240)",
+    border: "1px solid #CCC",
+    "border-radius": "5px",
+    "font-weight": "bold",
+    "font-size": "10px",
+    padding: "4px 6px",
+    cursor: "pointer",
+    "margin-top": "6px",
+    height: "25px",
+  });
+
+  var readButton = document.createElement("button");
+  readButton.classList.add("Read-Button");
+  readButton.innerText = "Find Out More";
+  readButton.setAttribute("href", href);
+  readButton.style = style;
+
+  return readButton;
+}
+
+var style1 = document.createElement("style");
+style1.innerText =
+  ".property-image:hover .tooltip  {visibility: visible !important;}";
+var adContainer = BZ_FORMAT.getAdContainer();
+if (adContainer && adContainer.tagName === "IFRAME") {
+  adContainer.contentDocument.head.appendChild(style1);
+} else {
+  document.head.appendChild(style1);
+}
+
+var style4 = document.createElement("style");
+style4.innerText =
+  ".property-image:hover .tooltiptext {visibility: visible !important}";
+if (adContainer && adContainer.tagName === "IFRAME") {
+  adContainer.contentDocument.head.appendChild(style4);
+} else {
+  document.head.appendChild(style4);
+}
+
+function injectStyles(css) {
+  var head = document.head || document.getElementsByTagName("head")[0];
+  var adContainer = BZ_FORMAT.getAdContainer();
+  if (adContainer && adContainer.tagName === "IFRAME") {
+    head = adContainer.contentDocument.head;
+  }
+  var style = document.createElement("style");
+  style.type = "text/css";
+  style.appendChild(document.createTextNode(css));
+
+  head.appendChild(style);
+}
+
+function injectCSS(cssLinks) {
+  injectLinksInHead("stylesheet", cssLinks);
+}
+
+function injectDNSPrefetchLinks(domains) {
+  injectLinksInHead("dns-prefetch", domains);
+}
+
+function injectLinksInHead(rel, hrefs) {
+  var head = document.head || document.getElementsByTagName("head")[0];
+  var adContainer = BZ_FORMAT.getAdContainer();
+  if (adContainer && adContainer.tagName === "IFRAME") {
+    head = adContainer.contentDocument.head;
+  }
+  var allLinks = getDOMElementsFragment(
+    hrefs.map(function (href) {
+      return getLinkDOM(rel, href);
+    })
+  );
+
+  head.appendChild(allLinks);
+}
+
+function getLinkDOM(rel, href) {
+  var link = document.createElement("link");
+  link.setAttribute("rel", rel);
+  link.setAttribute("href", href);
+
+  return link;
+}
+
+function getDOMElementsFragment(listOfDOMElements) {
+  var fragment = new DocumentFragment();
+
+  listOfDOMElements.forEach(function (dom) {
+    fragment.appendChild(dom);
+  });
+
+  return fragment;
+}
+
+function getStyleString(styleObj) {
+  return Object.keys(styleObj)
+    .map(function (key) {
+      return key + ":" + styleObj[key];
+    })
+    .join(";");
+}
